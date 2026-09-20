@@ -12,6 +12,7 @@ import { SAMPLE_POLICIES } from '@/lib/extract/mock-samples';
 import { TopAppBar } from '@/components/TopAppBar';
 import { BottomTabBar } from '@/components/BottomTabBar';
 import { CitationSheet } from '@/components/CitationSheet';
+import { DigiLockerModal } from '@/components/DigiLockerModal';
 
 // Screen Views
 import { OnboardingView } from '@/components/screens/OnboardingView';
@@ -38,6 +39,7 @@ export default function Page() {
   const [selectedPresetPolicy, setSelectedPresetPolicy] = useState<PolicyData | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [processingFileName, setProcessingFileName] = useState<string>('Policy_Schedule.pdf');
+  const [isDigiLockerOpen, setIsDigiLockerOpen] = useState<boolean>(false);
   const [currentScreen, setCurrentScreen] = useState<ActiveScreen>('home');
   const [previousScreen, setPreviousScreen] = useState<ActiveScreen>('home');
 
@@ -93,6 +95,13 @@ export default function Page() {
     setUploadedFile(file);
     setSelectedPresetPolicy(null);
     setProcessingFileName(file.name);
+    setIsProcessing(true);
+  };
+
+  const handleDigiLockerImport = (docName: string, policy: PolicyData) => {
+    setSelectedPresetPolicy(policy);
+    setUploadedFile(null);
+    setProcessingFileName(docName);
     setIsProcessing(true);
   };
 
@@ -192,6 +201,7 @@ export default function Page() {
           <UploadView
             onSelectPolicy={handleSelectPresetPolicy}
             onUploadFile={handleCustomUpload}
+            onOpenDigiLocker={() => setIsDigiLockerOpen(true)}
           />
         ) : (
           /* State 2: Active Policy Navigation & Screens */
@@ -308,6 +318,13 @@ export default function Page() {
         quote={citationState.quote}
         title={citationState.title}
         policyName={citationState.policyName}
+      />
+
+      {/* DigiLocker Official Consent Modal */}
+      <DigiLockerModal
+        isOpen={isDigiLockerOpen}
+        onClose={() => setIsDigiLockerOpen(false)}
+        onPolicyImported={handleDigiLockerImport}
       />
     </div>
   );
