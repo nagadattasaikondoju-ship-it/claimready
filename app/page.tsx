@@ -34,6 +34,8 @@ export default function Page() {
   const [language, setLanguage] = useState<Language>('en');
   const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
   const [activePolicy, setActivePolicy] = useState<PolicyData | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [selectedPresetPolicy, setSelectedPresetPolicy] = useState<PolicyData | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [processingFileName, setProcessingFileName] = useState<string>('Policy_Schedule.pdf');
   const [currentScreen, setCurrentScreen] = useState<ActiveScreen>('home');
@@ -81,11 +83,15 @@ export default function Page() {
 
   // Upload & selection handlers
   const handleSelectPresetPolicy = (policy: PolicyData) => {
+    setSelectedPresetPolicy(policy);
+    setUploadedFile(null);
     setProcessingFileName(`${policy.policyName}.pdf`);
     setIsProcessing(true);
   };
 
   const handleCustomUpload = (file: File) => {
+    setUploadedFile(file);
+    setSelectedPresetPolicy(null);
     setProcessingFileName(file.name);
     setIsProcessing(true);
   };
@@ -171,9 +177,15 @@ export default function Page() {
           <OnboardingView onGetStarted={() => setShowOnboarding(false)} />
         ) : isProcessing ? (
           <ProcessingView
+            file={uploadedFile}
+            presetPolicy={selectedPresetPolicy}
             fileName={processingFileName}
             onComplete={handleProcessingComplete}
-            onRetry={() => setIsProcessing(false)}
+            onRetry={() => {
+              setIsProcessing(false);
+              setUploadedFile(null);
+              setSelectedPresetPolicy(null);
+            }}
           />
         ) : !activePolicy ? (
           /* State 1: Upload-First Entry (No Policy Loaded) */
